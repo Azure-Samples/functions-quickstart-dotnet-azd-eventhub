@@ -292,6 +292,21 @@ When using VNet integration:
 - Client IP must be added to Event Hubs network rules for local development (done automatically by `addclientip` scripts)
 - Managed Identity is used for authentication between services
 
+## Clean Up Resources
+
+When you're done testing the sample, you can delete all Azure resources to avoid incurring charges:
+
+```bash
+azd down
+```
+
+This will:
+- Delete all Azure resources created by `azd provision`
+- Remove the resource group
+- Clean up the local environment configuration
+
+> **Note:** This action is irreversible. Make sure you no longer need the resources before running this command.
+
 ## Resources
 
 - [Azure Functions Documentation](https://docs.microsoft.com/azure/azure-functions/)
