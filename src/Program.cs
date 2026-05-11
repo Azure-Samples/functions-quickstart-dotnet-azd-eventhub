@@ -15,18 +15,15 @@ builder.ConfigureFunctionsWebApplication();
 // Register services
 builder.Services.AddScoped<NewsProcessingService>();
 
-// Configure OpenTelemetry
-var openTelemetryBuilder = builder.Services.AddOpenTelemetry()
-    .UseFunctionsWorkerDefaults();
-
-// Only use Azure Monitor exporter when running in Azure (not locally)
-var isRunningInAzure = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("AZURE_CLIENT_ID"));
-if (isRunningInAzure)
+// Configure OpenTelemetry only when an Application Insights connection string is configured
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_CONNECTION_STRING")))
 {
-    openTelemetryBuilder.UseAzureMonitorExporter(options =>
-    {
-        options.Credential = new DefaultAzureCredential();
-    });
+    builder.Services.AddOpenTelemetry()
+        .UseFunctionsWorkerDefaults()
+        .UseAzureMonitorExporter(options =>
+        {
+            options.Credential = new DefaultAzureCredential();
+        });
 }
 
 builder.Build().Run();
