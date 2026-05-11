@@ -15,7 +15,8 @@ builder.ConfigureFunctionsWebApplication();
 // Register services
 builder.Services.AddScoped<NewsProcessingService>();
 
-// Configure OpenTelemetry only when an Application Insights connection string is configured
+// Configure OpenTelemetry only when an Application Insights connection string is configured (Debug builds)
+#if DEBUG
 if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_CONNECTION_STRING")))
 {
     builder.Services.AddOpenTelemetry()
@@ -25,5 +26,13 @@ if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("APPLICATIONINSIGHT
             options.Credential = new DefaultAzureCredential();
         });
 }
+#else
+builder.Services.AddOpenTelemetry()
+    .UseFunctionsWorkerDefaults()
+    .UseAzureMonitorExporter(options =>
+    {
+        options.Credential = new DefaultAzureCredential();
+    });
+#endif
 
 builder.Build().Run();
