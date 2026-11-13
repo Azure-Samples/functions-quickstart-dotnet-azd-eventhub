@@ -111,11 +111,15 @@ module api 'br/public:avm/res/web/site:0.19.3' = {
           name: 'EventHubName'
           value: eventHubName
         }
+      ], !empty(applicationInsightsName) ? [
         {
-          name: 'AZURE_CLIENT_ID'
+          name: 'AzureMonitorExporter__credential'
+          value: 'managedidentity'
+        }
+        {
+          name: 'AzureMonitorExporter__clientId'
           value: identityClientId
         }
-      ], !empty(applicationInsightsName) ? [
         {
           name: 'APPLICATIONINSIGHTS_AUTHENTICATION_STRING'
           value: 'ClientId=${identityClientId};Authorization=AAD'

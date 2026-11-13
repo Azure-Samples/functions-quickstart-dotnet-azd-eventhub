@@ -1,7 +1,5 @@
-using System;
 using System.Text.Json;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Extensions.Logging;
 
 namespace function_app;
 

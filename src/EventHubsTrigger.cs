@@ -1,7 +1,6 @@
 using System.Text.Json;
 using Azure.Messaging.EventHubs;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Extensions.Logging;
 
 namespace function_app;
 
