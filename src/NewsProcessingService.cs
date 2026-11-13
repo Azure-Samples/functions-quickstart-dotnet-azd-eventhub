@@ -1,5 +1,3 @@
-using Microsoft.Extensions.Logging;
-
 namespace function_app;
 
 public class NewsProcessingService

@@ -1,11 +1,7 @@
-using Azure.Identity;
 using Azure.Monitor.OpenTelemetry.Exporter;
-using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Builder;
 using Microsoft.Azure.Functions.Worker.OpenTelemetry;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Azure;
 using function_app;
 
 var builder = FunctionsApplication.CreateBuilder(args);
@@ -16,17 +12,19 @@ builder.ConfigureFunctionsWebApplication();
 builder.Services.AddScoped<NewsProcessingService>();
 
 // Configure OpenTelemetry
-var openTelemetryBuilder = builder.Services.AddOpenTelemetry()
-    .UseFunctionsWorkerDefaults();
-
-// Only use Azure Monitor exporter when running in Azure (not locally)
-var isRunningInAzure = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("AZURE_CLIENT_ID"));
-if (isRunningInAzure)
+if (!string.IsNullOrWhiteSpace(builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]))
 {
-    openTelemetryBuilder.UseAzureMonitorExporter(options =>
-    {
-        options.Credential = new DefaultAzureCredential();
-    });
+    builder.Services.AddAzureClientsCore();
+    builder.Services.AddOptions<AzureMonitorExporterOptions>()
+        .Configure<AzureComponentFactory>((options, factory) =>
+        {
+            options.ConnectionString = builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"];
+            options.Credential = factory.CreateTokenCredential(
+                builder.Configuration.GetSection("AzureMonitorExporter"));
+        });
+    builder.Services.AddOpenTelemetry()
+        .UseFunctionsWorkerDefaults()
+        .UseAzureMonitorExporter();
 }
 
 builder.Build().Run();
